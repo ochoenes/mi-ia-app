@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="IA Chat">
+<title>IA Chat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+body.oscuro {
+  --bg: #0d0d14; --bg2: #13131e; --bg3: #1a1a28; --borde: #2a2a40;
+  --texto: #e0e0f0; --texto2: #9090b0; --acento: #5b8def;
+  --msg-user-bg: #1a2a4a; --msg-user-texto: #c8deff; --msg-user-borde: #2a4a7a;
+  --msg-ia-bg: #1a1a28; --msg-ia-texto: #d8d8f0; --msg-ia-borde: #2a2a40;
+  --error-bg: #2a1a1a; --error-texto: #f08080; --error-borde: #4a2020;
+  --input-bg: #1a1a28; --btn-bg: #5b8def; --btn-active: #4a7de0;
+  --code-bg: #0d0d20; --blockquote: #2a2a50;
+}
+body.claro {
+  --bg: #f5f5fa; --bg2: #ffffff; --bg3: #eaeaf5; --borde: #d0d0e0;
+  --texto: #1a1a2e; --texto2: #606080; --acento: #3a6fd8;
+  --msg-user-bg: #ddeaff; --msg-user-texto: #0a2a6a; --msg-user-borde: #aac4f0;
+  --msg-ia-bg: #ffffff; --msg-ia-texto: #1a1a2e; --msg-ia-borde: #d0d0e0;
+  --error-bg: #fff0f0; --error-texto: #c03030; --error-borde: #f0c0c0;
+  --input-bg: #ffffff; --btn-bg: #3a6fd8; --btn-active: #2a5fc8;
+  --code-bg: #eeeef8; --blockquote: #e0e0f0;
+}
+* { -webkit-box-sizing: border-box; box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--texto);
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+  -webkit-transition: background 0.3s, color 0.3s; transition: background 0.3s, color 0.3s;
+}
+#header {
+  background: var(--bg2); border-bottom: 1px solid var(--borde);
+  padding: 12px 16px; min-height: 50px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-flex-shrink: 0; flex-shrink: 0;
+}
+#header .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--acento); margin-right: 10px; -webkit-flex-shrink: 0; flex-shrink: 0; }
+#header h1 { font-size: 17px; font-weight: 600; color: var(--texto); -webkit-flex: 1; flex: 1; }
+#header .modelo { font-size: 12px; color: var(--texto2); margin-right: 12px; }
+#btn-tema {
+  background: var(--bg3); border: 1px solid var(--borde); border-radius: 14px;
+  padding: 0 12px; height: 28px; font-size: 13px; cursor: pointer;
+  color: var(--texto); -webkit-appearance: none; line-height: 28px;
+}
+#mensajes {
+  -webkit-flex: 1; flex: 1;
+  overflow-y: scroll; -webkit-overflow-scrolling: touch;
+  padding: 16px;
+}
+.bienvenida { text-align: center; padding: 48px 20px; color: var(--texto2); font-size: 15px; line-height: 1.8; }
+.bienvenida .icono { font-size: 38px; margin-bottom: 14px; }
+.msg-wrap { margin-bottom: 14px; display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column; }
+.msg-wrap.usuario { -webkit-box-align: end; -webkit-align-items: flex-end; align-items: flex-end; }
+.msg-wrap.ia, .msg-wrap.error { -webkit-box-align: start; -webkit-align-items: flex-start; align-items: flex-start; }
+.msg { max-width: 88%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.6; word-wrap: break-word; overflow-wrap: break-word; }
+.msg-wrap.usuario .msg { background: var(--msg-user-bg); color: var(--msg-user-texto); border: 1px solid var(--msg-user-borde); border-bottom-right-radius: 4px; }
+.msg-wrap.ia .msg { background: var(--msg-ia-bg); color: var(--msg-ia-texto); border: 1px solid var(--msg-ia-borde); border-bottom-left-radius: 4px; }
+.msg-wrap.error .msg { background: var(--error-bg); color: var(--error-texto); border: 1px solid var(--error-borde); border-bottom-left-radius: 4px; font-size: 14px; }
+.msg p { margin-bottom: 8px; } .msg p:last-child { margin-bottom: 0; }
+.msg strong { font-weight: 600; } .msg em { font-style: italic; }
+.msg h1 { font-size: 18px; font-weight: 600; margin: 10px 0 6px; }
+.msg h2 { font-size: 16px; font-weight: 600; margin: 10px 0 6px; }
+.msg h3 { font-size: 15px; font-weight: 600; margin: 10px 0 6px; }
+.msg ul, .msg ol { padding-left: 20px; margin-bottom: 8px; } .msg li { margin-bottom: 3px; }
+.msg code { background: var(--code-bg); border-radius: 4px; padding: 1px 5px; font-family: 'Courier New', monospace; font-size: 13px; }
+.msg pre { background: var(--code-bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 6px 0; -webkit-overflow-scrolling: touch; }
+.msg pre code { background: none; padding: 0; font-size: 13px; }
+.msg blockquote { border-left: 3px solid var(--acento); background: var(--blockquote); padding: 6px 10px; border-radius: 0 6px 6px 0; margin: 6px 0; font-style: italic; }
+.msg table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 6px 0; }
+.msg th, .msg td { border: 1px solid var(--borde); padding: 5px 8px; text-align: left; }
+.msg th { font-weight: 600; background: var(--bg3); }
+.msg a { color: var(--acento); text-decoration: underline; }
+.msg img.adjunta { max-width: 100%; border-radius: 10px; margin-bottom: 8px; display: block; }
+.msg img.generada { max-width: 100%; border-radius: 10px; margin-top: 8px; display: block; border: 1px solid var(--borde); }
+.pensando { background: var(--msg-ia-bg); border: 1px solid var(--msg-ia-borde); border-bottom-left-radius: 4px; padding: 12px 18px; border-radius: 18px; font-size: 20px; letter-spacing: 4px; color: var(--texto2); }
+.pensando span { display: inline-block; -webkit-animation: parpadeo 1.2s infinite; animation: parpadeo 1.2s infinite; }
+.pensando span:nth-child(2) { -webkit-animation-delay: 0.2s; animation-delay: 0.2s; }
+.pensando span:nth-child(3) { -webkit-animation-delay: 0.4s; animation-delay: 0.4s; }
+@-webkit-keyframes parpadeo { 0%,100%{opacity:0.2} 50%{opacity:1} }
+@keyframes parpadeo { 0%,100%{opacity:0.2} 50%{opacity:1} }
+#preview-area { display: none; background: var(--bg2); border-top: 1px solid var(--borde); padding: 8px 16px; -webkit-flex-shrink: 0; flex-shrink: 0; }
+#preview-inner { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; gap: 10px; }
+#preview-img { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid var(--borde); -webkit-flex-shrink: 0; flex-shrink: 0; }
+#preview-texto { font-size: 13px; color: var(--texto2); -webkit-flex: 1; flex: 1; }
+#btn-quitar { background: none; border: none; color: var(--error-texto); font-size: 20px; cursor: pointer; padding: 4px 8px; -webkit-appearance: none; }
+#input-area {
+  background: var(--bg2); border-top: 1px solid var(--borde);
+  padding: 10px 12px; gap: 8px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: end; -webkit-align-items: flex-end; align-items: flex-end;
+  -webkit-flex-shrink: 0; flex-shrink: 0;
+}
+#btn-adjuntar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--borde);
+  color: var(--texto2); font-size: 13px; font-weight: 600;
+  cursor: pointer; -webkit-flex-shrink: 0; flex-shrink: 0;
+  -webkit-appearance: none; line-height: 40px; text-align: center;
+  display: block; padding: 0;
+}
+#btn-adjuntar:active { background: var(--borde); }
+#texto {
+  -webkit-flex: 1; flex: 1;
+  background: var(--input-bg); border: 1px solid var(--borde); border-radius: 20px;
+  padding: 9px 14px; font-size: 16px; color: var(--texto);
+  outline: none; resize: none; max-height: 120px; min-height: 40px;
+  font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.4; -webkit-appearance: none; display: block;
+}
+#texto:focus { border-color: var(--acento); }
+#texto::-webkit-input-placeholder { color: var(--texto2); }
+#btn-enviar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--btn-bg); border: none; cursor: pointer;
+  -webkit-flex-shrink: 0; flex-shrink: 0; -webkit-appearance: none;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+}
+#btn-enviar:active { background: var(--btn-active); }
+#btn-enviar:disabled { background: var(--borde); }
+#btn-enviar svg { width: 18px; height: 18px; fill: #fff; }
+#btn-enviar:disabled svg { fill: var(--texto2); }
+#file-input { display: none; }
+</style>
+</head>
+<body class="oscuro">
+<div id="header">
+  <div class="punto"></div>
+  <h1>IA Chat</h1>
+  <span class="modelo">LLaMA · Groq</span>
+  <button id="btn-tema">Claro</button>
+</div>
+<div id="mensajes">
+  <div class="bienvenida">
+    <div class="icono">◈</div>
+    Hola, soy tu asistente de IA.<br>
+    Escríbeme, mándame una foto<br>o pídeme que genere una imagen.
+  </div>
+</div>
+<div id="preview-area">
+  <div id="preview-inner">
+    <img id="preview-img" src="" alt="Vista previa">
+    <span id="preview-texto">Imagen lista</span>
+    <button id="btn-quitar">X</button>
+  </div>
+</div>
+<div id="input-area">
+  <button id="btn-adjuntar">foto</button>
+  <input type="file" id="file-input" accept="image/*">
+  <textarea id="texto" placeholder="Escribe un mensaje..." rows="1"></textarea>
+  <button id="btn-enviar">
+    <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+  </button>
+</div>
+<script>
+var SERVIDOR = "https://mi-claude-server.onrender.com";
+var temaOscuro = true;
+var enviando = false;
+var imgBase64 = null;
+var imgTipo = null;
+var elMensajes = document.getElementById("mensajes");
+var elTexto = document.getElementById("texto");
+var elBtnEnviar = document.getElementById("btn-enviar");
+var elBtnTema = document.getElementById("btn-tema");
+var elBtnAdjuntar = document.getElementById("btn-adjuntar");
+var elFileInput = document.getElementById("file-input");
+var elPreviewArea = document.getElementById("preview-area");
+var elPreviewImg = document.getElementById("preview-img");
+var elBtnQuitar = document.getElementById("btn-quitar");
+
+elBtnTema.addEventListener("click", function() {
+  temaOscuro = !temaOscuro;
+  document.body.className = temaOscuro ? "oscuro" : "claro";
+  elBtnTema.textContent = temaOscuro ? "Claro" : "Oscuro";
+});
+
+function renderizarMensaje(texto) {
+  var bloques = [];
+  var i = 0;
+  texto = texto.replace(/\$\$([\s\S]+?)\$\$/g, function(_, eq) {
+    var ph = "BLOQUE_EQ_" + i + "_FIN";
+    try { bloques.push({ ph: ph, html: katex.renderToString(eq.trim(), { displayMode: true, throwOnError: false }) }); }
+    catch(e) { bloques.push({ ph: ph, html: "<code>" + eq + "</code>" }); }
+    i++; return ph;
+  });
+  texto = texto.replace(/\$([^\$\n]+?)\$/g, function(_, eq) {
+    var ph = "INLINE_EQ_" + i + "_FIN";
+    try { bloques.push({ ph: ph, html: katex.renderToString(eq.trim(), { displayMode: false, throwOnError: false }) }); }
+    catch(e) { bloques.push({ ph: ph, html: "<code>" + eq + "</code>" }); }
+    i++; return ph;
+  });
+  var html = marked.parse(texto);
+  for (var j = 0; j < bloques.length; j++) { html = html.replace(bloques[j].ph, bloques[j].html); }
+  return html;
+}
+
+function scrollAbajo() { elMensajes.scrollTop = elMensajes.scrollHeight; }
+
+function quitarBienvenida() {
+  var b = elMensajes.querySelector(".bienvenida");
+  if (b) b.parentNode.removeChild(b);
+}
+
+function agregarMensaje(contenido, tipo, imgSrc, esHTML) {
+  quitarBienvenida();
+  var wrap = document.createElement("div");
+  wrap.className = "msg-wrap " + tipo;
+  var div = document.createElement("div");
+  div.className = "msg";
+  if (imgSrc) {
+    var img = document.createElement("img");
+    img.className = "adjunta"; img.src = imgSrc;
+    div.appendChild(img);
+  }
+  if (esHTML) {
+    var span = document.createElement("span");
+    span.innerHTML = contenido;
+    div.appendChild(span);
+  } else if (contenido) {
+    var p = document.createElement("p");
+    p.textContent = contenido;
+    div.appendChild(p);
+  }
+  wrap.appendChild(div);
+  elMensajes.appendChild(wrap);
+  scrollAbajo();
+  return div;
+}
+
+function mostrarPensando() {
+  quitarBienvenida();
+  var wrap = document.createElement("div");
+  wrap.className = "msg-wrap ia";
+  var div = document.createElement("div");
+  div.className = "pensando";
+  div.innerHTML = "<span>●</span><span>●</span><span>●</span>";
+  wrap.appendChild(div);
+  elMensajes.appendChild(wrap);
+  scrollAbajo();
+  return wrap;
+}
+
+elBtnAdjuntar.addEventListener("click", function() { elFileInput.click(); });
+
+elFileInput.addEventListener("change", function() {
+  var file = elFileInput.files[0];
+  if (!file) return;
+  imgTipo = file.type || "image/jpeg";
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    imgBase64 = dataUrl.split(",")[1];
+    elPreviewImg.src = dataUrl;
+    elPreviewArea.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+function quitarImagen() {
+  imgBase64 = null; imgTipo = null;
+  elPreviewImg.src = "";
+  elPreviewArea.style.display = "none";
+  elFileInput.value = "";
+}
+elBtnQuitar.addEventListener("click", quitarImagen);
+
+function esGenerarImagen(t) {
+  t = t.toLowerCase();
+  var verbos = ["genera", "generar", "crea", "crear", "dibuja", "dibujar", "pinta", "pintar", "haz una imagen", "hazme una imagen", "hacer una imagen", "ilustra", "diseña un imagen", "diseña una imagen"];
+  var objetos = ["imagen", "foto", "fotografía", "fotografia", "ilustración", "ilustracion", "dibujo", "pintura"];
+  for (var i = 0; i < verbos.length; i++) {
+    if (t.indexOf(verbos[i]) !== -1) {
+      for (var j = 0; j < objetos.length; j++) {
+        if (t.indexOf(objetos[j]) !== -1) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function generarImagen(prompt, divMensaje) {
+  var url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=512&height=512&nologo=true";
+  var img = document.createElement("img");
+  img.className = "generada";
+  img.alt = "Imagen generada";
+  img.onload = function() { scrollAbajo(); };
+  img.src = url;
+  divMensaje.appendChild(img);
+}
+
+function enviar() {
+  if (enviando) return;
+  var msg = elTexto.value.trim();
+  if (!msg && !imgBase64) return;
+  enviando = true;
+  var msgTexto = msg;
+  var imgSrc = imgBase64 ? elPreviewImg.src : null;
+  var imgB64 = imgBase64;
+  var imgT = imgTipo;
+  elTexto.value = "";
+  elTexto.style.height = "40px";
+  elBtnEnviar.disabled = true;
+  quitarImagen();
+  agregarMensaje(msgTexto, "usuario", imgSrc, false);
+
+  if (!imgB64 && esGenerarImagen(msgTexto)) {
+    var div = agregarMensaje("Generando imagen...", "ia", null, false);
+    generarImagen(msgTexto, div);
+    enviando = false;
+    elBtnEnviar.disabled = false;
+    return;
+  }
+
+  var indicadorWrap = mostrarPensando();
+  var payload = { mensaje: msgTexto };
+  if (imgB64) { payload.imagen = imgB64; payload.imagen_tipo = imgT; }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", SERVIDOR + "/chat", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.timeout = 30000;
+  xhr.onload = function() {
+    if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+    if (xhr.status === 200) {
+      try {
+        var data = JSON.parse(xhr.responseText);
+        agregarMensaje(renderizarMensaje(data.respuesta), "ia", null, true);
+      } catch(e) { agregarMensaje("Error procesando la respuesta.", "error", null, false); }
+    } else {
+      agregarMensaje("Error del servidor (" + xhr.status + ").", "error", null, false);
+    }
+    enviando = false; elBtnEnviar.disabled = false;
+  };
+  xhr.onerror = function() {
+    if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+    agregarMensaje("No se pudo conectar con el servidor.", "error", null, false);
+    enviando = false; elBtnEnviar.disabled = false;
+  };
+  xhr.ontimeout = function() {
+    if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+    agregarMensaje("Tiempo agotado. Inténtalo de nuevo.", "error", null, false);
+    enviando = false; elBtnEnviar.disabled = false;
+  };
+  xhr.send(JSON.stringify(payload));
+}
+
+elBtnEnviar.addEventListener("click", enviar);
+elTexto.addEventListener("keydown", function(e) {
+  if (e.keyCode === 13 && !e.shiftKey) { e.preventDefault(); enviar(); }
+});
+elTexto.addEventListener("input", function() {
+  this.style.height = "40px";
+  this.style.height = Math.min(this.scrollHeight, 120) + "px";
+});
+</script>
+</body>
+</html>
