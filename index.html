@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IA Chat">
+<title>IA Chat</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    background: #0a0a0f;
+    color: #e8e8f0;
+    height: 100vh;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #header {
+    background: #12121a;
+    border-bottom: 1px solid #2a2a3a;
+    padding: 14px 20px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 10px;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+
+  #header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4fa8e8;
+    box-shadow: 0 0 8px #4fa8e8;
+  }
+
+  #header h1 {
+    font-size: 17px;
+    font-weight: 600;
+    color: #e8e8f0;
+    letter-spacing: -0.3px;
+  }
+
+  #header .model {
+    margin-left: auto;
+    font-size: 12px;
+    color: #555570;
+  }
+
+  #messages {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+
+  .msg.usuario {
+    background: #1a3a5c;
+    color: #d0e8ff;
+    -webkit-align-self: flex-end;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    border: 1px solid #2a5a8c;
+  }
+
+  .msg.ia {
+    background: #1e1e2e;
+    color: #d8d8f0;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #2a2a3a;
+  }
+
+  .msg.error {
+    background: #2a1a1a;
+    color: #f08080;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    border: 1px solid #4a2a2a;
+    border-bottom-left-radius: 4px;
+    font-size: 14px;
+  }
+
+  .msg img {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .pensando {
+    background: #1e1e2e;
+    color: #555570;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    border: 1px solid #2a2a3a;
+    border-bottom-left-radius: 4px;
+    padding: 12px 20px;
+    border-radius: 18px;
+    font-size: 20px;
+    letter-spacing: 4px;
+  }
+
+  .pensando span {
+    display: inline-block;
+    animation: parpadeo 1.2s infinite;
+  }
+  .pensando span:nth-child(2) { animation-delay: 0.2s; }
+  .pensando span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes parpadeo {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  #preview-imagen {
+    display: none;
+    background: #12121a;
+    border-top: 1px solid #2a2a3a;
+    padding: 8px 16px;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 10px;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+
+  #preview-imagen.activo {
+    display: -webkit-flex;
+    display: flex;
+  }
+
+  #preview-imagen img {
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #2a2a3a;
+  }
+
+  #preview-imagen span {
+    font-size: 13px;
+    color: #8888aa;
+    -webkit-flex: 1;
+    flex: 1;
+  }
+
+  #btn-quitar-imagen {
+    background: none;
+    border: none;
+    color: #f08080;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    -webkit-appearance: none;
+  }
+
+  #input-area {
+    background: #12121a;
+    border-top: 1px solid #2a2a3a;
+    padding: 12px 16px;
+    display: -webkit-flex;
+    display: flex;
+    gap: 10px;
+    -webkit-align-items: flex-end;
+    align-items: flex-end;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+
+  #btn-imagen {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #1e1e2e;
+    border: 1px solid #2a2a3a;
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+    color: #8888aa;
+    font-size: 20px;
+  }
+
+  #btn-imagen:active { background: #2a2a3e; }
+
+  #texto {
+    -webkit-flex: 1;
+    flex: 1;
+    background: #1e1e2e;
+    border: 1px solid #2a2a3a;
+    border-radius: 22px;
+    padding: 10px 16px;
+    font-size: 16px;
+    color: #e8e8f0;
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    min-height: 44px;
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    line-height: 1.4;
+    -webkit-appearance: none;
+  }
+
+  #texto:focus { border-color: #4fa8e8; }
+  #texto::placeholder { color: #44445a; }
+
+  #btn-enviar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #4fa8e8;
+    border: none;
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+  }
+
+  #btn-enviar:active { background: #3a8fd0; }
+  #btn-enviar:disabled { background: #2a2a3a; }
+
+  #btn-enviar svg { width: 20px; height: 20px; fill: #fff; }
+  #btn-enviar:disabled svg { fill: #44445a; }
+
+  #file-input { display: none; }
+
+  .bienvenida {
+    text-align: center;
+    padding: 40px 20px;
+    color: #44445a;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .bienvenida .icono { font-size: 36px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="dot"></div>
+  <h1>IA Chat</h1>
+  <span class="model">LLaMA · Groq</span>
+</div>
+
+<div id="messages">
+  <div class="bienvenida">
+    <div class="icono">◈</div>
+    Hola, soy tu asistente de IA.<br>
+    Puedes escribirme o enviarme una foto.
+  </div>
+</div>
+
+<div id="preview-imagen">
+  <img id="preview-img" src="" alt="Vista previa">
+  <span id="preview-texto">Imagen lista para enviar</span>
+  <button id="btn-quitar-imagen">✕</button>
+</div>
+
+<div id="input-area">
+  <button id="btn-imagen">📷</button>
+  <input type="file" id="file-input" accept="image/*">
+  <textarea id="texto" placeholder="Escribe un mensaje..." rows="1"></textarea>
+  <button id="btn-enviar">
+    <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+  </button>
+</div>
+
+<script>
+  // ⚠️ CAMBIA ESTA URL por la de tu servidor en Render
+  var SERVIDOR_URL = "https://mi-claude-server.onrender.com";
+
+  var mensajes = document.getElementById("messages");
+  var texto = document.getElementById("texto");
+  var btnEnviar = document.getElementById("btn-enviar");
+  var btnImagen = document.getElementById("btn-imagen");
+  var fileInput = document.getElementById("file-input");
+  var previewArea = document.getElementById("preview-imagen");
+  var previewImg = document.getElementById("preview-img");
+  var btnQuitarImagen = document.getElementById("btn-quitar-imagen");
+
+  var enviando = false;
+  var imagenBase64 = null;
+  var imagenTipo = null;
+
+  function scrollAbajo() {
+    mensajes.scrollTop = mensajes.scrollHeight;
+  }
+
+  function quitarBienvenida() {
+    var b = mensajes.querySelector(".bienvenida");
+    if (b) b.parentNode.removeChild(b);
+  }
+
+  function agregarMensaje(texto_msg, tipo, imgSrc) {
+    quitarBienvenida();
+    var div = document.createElement("div");
+    div.className = "msg " + tipo;
+    if (imgSrc) {
+      var img = document.createElement("img");
+      img.src = imgSrc;
+      div.appendChild(img);
+    }
+    if (texto_msg) {
+      var p = document.createElement("span");
+      p.textContent = texto_msg;
+      div.appendChild(p);
+    }
+    mensajes.appendChild(div);
+    scrollAbajo();
+    return div;
+  }
+
+  function mostrarPensando() {
+    quitarBienvenida();
+    var div = document.createElement("div");
+    div.className = "pensando";
+    div.innerHTML = "<span>●</span><span>●</span><span>●</span>";
+    mensajes.appendChild(div);
+    scrollAbajo();
+    return div;
+  }
+
+  function quitarImagen() {
+    imagenBase64 = null;
+    imagenTipo = null;
+    previewArea.className = "";
+    previewImg.src = "";
+    fileInput.value = "";
+  }
+
+  btnQuitarImagen.addEventListener("click", quitarImagen);
+
+  btnImagen.addEventListener("click", function() {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", function() {
+    var file = fileInput.files[0];
+    if (!file) return;
+    imagenTipo = file.type || "image/jpeg";
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var dataUrl = e.target.result;
+      imagenBase64 = dataUrl.split(",")[1];
+      previewImg.src = dataUrl;
+      previewArea.className = "activo";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function enviar() {
+    if (enviando) return;
+    var msg = texto.value.trim();
+    if (!msg && !imagenBase64) return;
+
+    enviando = true;
+    var msgTexto = msg;
+    var imgSrc = imagenBase64 ? previewImg.src : null;
+    var imgB64 = imagenBase64;
+    var imgTipo = imagenTipo;
+
+    texto.value = "";
+    texto.style.height = "44px";
+    btnEnviar.disabled = true;
+    quitarImagen();
+
+    agregarMensaje(msgTexto, "usuario", imgSrc);
+    var indicador = mostrarPensando();
+
+    var payload = { mensaje: msgTexto };
+    if (imgB64) {
+      payload.imagen = imgB64;
+      payload.imagen_tipo = imgTipo;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", SERVIDOR_URL + "/chat", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.timeout = 30000;
+
+    xhr.onload = function() {
+      if (indicador.parentNode) indicador.parentNode.removeChild(indicador);
+      if (xhr.status === 200) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          agregarMensaje(data.respuesta, "ia", null);
+        } catch(e) {
+          agregarMensaje("Error al procesar la respuesta.", "error", null);
+        }
+      } else {
+        agregarMensaje("Error del servidor (" + xhr.status + ").", "error", null);
+      }
+      enviando = false;
+      btnEnviar.disabled = false;
+    };
+
+    xhr.onerror = function() {
+      if (indicador.parentNode) indicador.parentNode.removeChild(indicador);
+      agregarMensaje("No se pudo conectar. ¿Está activo el servidor?", "error", null);
+      enviando = false;
+      btnEnviar.disabled = false;
+    };
+
+    xhr.ontimeout = function() {
+      if (indicador.parentNode) indicador.parentNode.removeChild(indicador);
+      agregarMensaje("Tiempo agotado. Inténtalo de nuevo.", "error", null);
+      enviando = false;
+      btnEnviar.disabled = false;
+    };
+
+    xhr.send(JSON.stringify(payload));
+  }
+
+  btnEnviar.addEventListener("click", enviar);
+
+  texto.addEventListener("keydown", function(e) {
+    if (e.keyCode === 13 && !e.shiftKey) {
+      e.preventDefault();
+      enviar();
+    }
+  });
+
+  texto.addEventListener("input", function() {
+    this.style.height = "44px";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+  });
+</script>
+</body>
+</html>
