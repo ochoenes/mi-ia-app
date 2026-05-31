@@ -4,300 +4,453 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="IA Chat">
 <title>IA Chat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* ── TEMAS ── */
+body.oscuro {
+  --bg: #0d0d14;
+  --bg2: #13131e;
+  --bg3: #1a1a28;
+  --borde: #2a2a40;
+  --texto: #e0e0f0;
+  --texto2: #9090b0;
+  --acento: #5b8def;
+  --msg-user-bg: #1a2a4a;
+  --msg-user-texto: #c8deff;
+  --msg-user-borde: #2a4a7a;
+  --msg-ia-bg: #1a1a28;
+  --msg-ia-texto: #d8d8f0;
+  --msg-ia-borde: #2a2a40;
+  --error-bg: #2a1a1a;
+  --error-texto: #f08080;
+  --error-borde: #4a2020;
+  --input-bg: #1a1a28;
+  --btn-bg: #5b8def;
+  --btn-active: #4a7de0;
+  --code-bg: #0d0d20;
+  --blockquote: #2a2a50;
+}
+body.claro {
+  --bg: #f5f5fa;
+  --bg2: #ffffff;
+  --bg3: #eaeaf5;
+  --borde: #d0d0e0;
+  --texto: #1a1a2e;
+  --texto2: #6060808;
+  --acento: #3a6fd8;
+  --msg-user-bg: #ddeaff;
+  --msg-user-texto: #0a2a6a;
+  --msg-user-borde: #aac4f0;
+  --msg-ia-bg: #ffffff;
+  --msg-ia-texto: #1a1a2e;
+  --msg-ia-borde: #d0d0e0;
+  --error-bg: #fff0f0;
+  --error-texto: #c03030;
+  --error-borde: #f0c0c0;
+  --input-bg: #ffffff;
+  --btn-bg: #3a6fd8;
+  --btn-active: #2a5fc8;
+  --code-bg: #eeeef8;
+  --blockquote: #e0e0f0;
+}
 
-  body {
-    font-family: -apple-system, 'Helvetica Neue', sans-serif;
-    background: #0a0a0f;
-    color: #e8e8f0;
-    height: 100vh;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    overflow: hidden;
-  }
+* { -webkit-box-sizing: border-box; box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  #header {
-    background: #12121a;
-    border-bottom: 1px solid #2a2a3a;
-    padding: 14px 20px;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-align-items: center;
-    align-items: center;
-    gap: 10px;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-  }
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
 
-  #header .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #4fa8e8;
-    box-shadow: 0 0 8px #4fa8e8;
-  }
+body {
+  font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-transition: background 0.3s, color 0.3s;
+  transition: background 0.3s, color 0.3s;
+}
 
-  #header h1 {
-    font-size: 17px;
-    font-weight: 600;
-    color: #e8e8f0;
-    letter-spacing: -0.3px;
-  }
+/* ── HEADER ── */
+#header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--borde);
+  padding: 12px 16px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  min-height: 50px;
+}
 
-  #header .model {
-    margin-left: auto;
-    font-size: 12px;
-    color: #555570;
-  }
+#header .punto {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--acento);
+  margin-right: 10px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
 
-  #messages {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 16px;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    gap: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
+#header h1 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--texto);
+  -webkit-flex: 1;
+  flex: 1;
+}
 
-  .msg {
-    max-width: 85%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 16px;
-    line-height: 1.5;
-    word-wrap: break-word;
-  }
+#header .modelo {
+  font-size: 12px;
+  color: var(--texto2);
+  margin-right: 12px;
+}
 
-  .msg.usuario {
-    background: #1a3a5c;
-    color: #d0e8ff;
-    -webkit-align-self: flex-end;
-    align-self: flex-end;
-    border-bottom-right-radius: 4px;
-    border: 1px solid #2a5a8c;
-  }
+#btn-tema {
+  background: var(--bg3);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--texto);
+  -webkit-appearance: none;
+  line-height: 1;
+}
 
-  .msg.ia {
-    background: #1e1e2e;
-    color: #d8d8f0;
-    -webkit-align-self: flex-start;
-    align-self: flex-start;
-    border-bottom-left-radius: 4px;
-    border: 1px solid #2a2a3a;
-  }
+/* ── MENSAJES ── */
+#mensajes {
+  -webkit-flex: 1;
+  flex: 1;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+}
 
-  .msg.error {
-    background: #2a1a1a;
-    color: #f08080;
-    -webkit-align-self: flex-start;
-    align-self: flex-start;
-    border: 1px solid #4a2a2a;
-    border-bottom-left-radius: 4px;
-    font-size: 14px;
-  }
+.bienvenida {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--texto2);
+  font-size: 15px;
+  line-height: 1.8;
+}
+.bienvenida .icono { font-size: 38px; margin-bottom: 14px; }
 
-  .msg img {
-    max-width: 100%;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    display: block;
-  }
+.msg-wrap {
+  margin-bottom: 14px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
 
-  .pensando {
-    background: #1e1e2e;
-    color: #555570;
-    -webkit-align-self: flex-start;
-    align-self: flex-start;
-    border: 1px solid #2a2a3a;
-    border-bottom-left-radius: 4px;
-    padding: 12px 20px;
-    border-radius: 18px;
-    font-size: 20px;
-    letter-spacing: 4px;
-  }
+.msg-wrap.usuario {
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
 
-  .pensando span {
-    display: inline-block;
-    animation: parpadeo 1.2s infinite;
-  }
-  .pensando span:nth-child(2) { animation-delay: 0.2s; }
-  .pensando span:nth-child(3) { animation-delay: 0.4s; }
+.msg-wrap.ia, .msg-wrap.error {
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
 
-  @keyframes parpadeo {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 1; }
-  }
+.msg {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 
-  #preview-imagen {
-    display: none;
-    background: #12121a;
-    border-top: 1px solid #2a2a3a;
-    padding: 8px 16px;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    -webkit-align-items: center;
-    align-items: center;
-    gap: 10px;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-  }
+.msg-wrap.usuario .msg {
+  background: var(--msg-user-bg);
+  color: var(--msg-user-texto);
+  border: 1px solid var(--msg-user-borde);
+  border-bottom-right-radius: 4px;
+}
 
-  #preview-imagen.activo {
-    display: -webkit-flex;
-    display: flex;
-  }
+.msg-wrap.ia .msg {
+  background: var(--msg-ia-bg);
+  color: var(--msg-ia-texto);
+  border: 1px solid var(--msg-ia-borde);
+  border-bottom-left-radius: 4px;
+}
 
-  #preview-imagen img {
-    height: 50px;
-    width: 50px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #2a2a3a;
-  }
+.msg-wrap.error .msg {
+  background: var(--error-bg);
+  color: var(--error-texto);
+  border: 1px solid var(--error-borde);
+  border-bottom-left-radius: 4px;
+  font-size: 14px;
+}
 
-  #preview-imagen span {
-    font-size: 13px;
-    color: #8888aa;
-    -webkit-flex: 1;
-    flex: 1;
-  }
+/* Markdown dentro de mensajes */
+.msg p { margin-bottom: 8px; }
+.msg p:last-child { margin-bottom: 0; }
+.msg strong { font-weight: 600; }
+.msg em { font-style: italic; }
+.msg h1, .msg h2, .msg h3 { font-weight: 600; margin: 10px 0 6px; }
+.msg h1 { font-size: 18px; }
+.msg h2 { font-size: 16px; }
+.msg h3 { font-size: 15px; }
+.msg ul, .msg ol { padding-left: 20px; margin-bottom: 8px; }
+.msg li { margin-bottom: 3px; }
+.msg code {
+  background: var(--code-bg);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+.msg pre {
+  background: var(--code-bg);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 6px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.msg pre code {
+  background: none;
+  padding: 0;
+  font-size: 13px;
+}
+.msg blockquote {
+  border-left: 3px solid var(--acento);
+  background: var(--blockquote);
+  padding: 6px 10px;
+  border-radius: 0 6px 6px 0;
+  margin: 6px 0;
+  font-style: italic;
+}
+.msg table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  margin: 6px 0;
+}
+.msg th, .msg td {
+  border: 1px solid var(--borde);
+  padding: 5px 8px;
+  text-align: left;
+}
+.msg th { font-weight: 600; background: var(--bg3); }
+.msg a { color: var(--acento); text-decoration: underline; }
+.msg hr { border: none; border-top: 1px solid var(--borde); margin: 8px 0; }
 
-  #btn-quitar-imagen {
-    background: none;
-    border: none;
-    color: #f08080;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px 8px;
-    -webkit-appearance: none;
-  }
+/* Imágenes en mensajes */
+.msg img.adjunta {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  display: block;
+}
 
-  #input-area {
-    background: #12121a;
-    border-top: 1px solid #2a2a3a;
-    padding: 12px 16px;
-    display: -webkit-flex;
-    display: flex;
-    gap: 10px;
-    -webkit-align-items: flex-end;
-    align-items: flex-end;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-  }
+.msg img.generada {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 8px;
+  display: block;
+  border: 1px solid var(--borde);
+}
 
-  #btn-imagen {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #1e1e2e;
-    border: 1px solid #2a2a3a;
-    cursor: pointer;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-    -webkit-appearance: none;
-    color: #8888aa;
-    font-size: 20px;
-  }
+/* Indicador pensando */
+.pensando {
+  background: var(--msg-ia-bg);
+  border: 1px solid var(--msg-ia-borde);
+  border-bottom-left-radius: 4px;
+  padding: 12px 18px;
+  border-radius: 18px;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--texto2);
+}
+.pensando span {
+  display: inline-block;
+  -webkit-animation: parpadeo 1.2s infinite;
+  animation: parpadeo 1.2s infinite;
+}
+.pensando span:nth-child(2) { -webkit-animation-delay: 0.2s; animation-delay: 0.2s; }
+.pensando span:nth-child(3) { -webkit-animation-delay: 0.4s; animation-delay: 0.4s; }
+@-webkit-keyframes parpadeo { 0%,100%{opacity:0.2} 50%{opacity:1} }
+@keyframes parpadeo { 0%,100%{opacity:0.2} 50%{opacity:1} }
 
-  #btn-imagen:active { background: #2a2a3e; }
+/* ── PREVIEW IMAGEN ── */
+#preview-area {
+  display: none;
+  background: var(--bg2);
+  border-top: 1px solid var(--borde);
+  padding: 8px 16px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+#preview-area.activo { display: block; }
+#preview-inner {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  gap: 10px;
+}
+#preview-img {
+  width: 52px; height: 52px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+#preview-texto {
+  font-size: 13px;
+  color: var(--texto2);
+  -webkit-flex: 1;
+  flex: 1;
+}
+#btn-quitar {
+  background: none;
+  border: none;
+  color: var(--error-texto);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  -webkit-appearance: none;
+}
 
-  #texto {
-    -webkit-flex: 1;
-    flex: 1;
-    background: #1e1e2e;
-    border: 1px solid #2a2a3a;
-    border-radius: 22px;
-    padding: 10px 16px;
-    font-size: 16px;
-    color: #e8e8f0;
-    outline: none;
-    resize: none;
-    max-height: 120px;
-    min-height: 44px;
-    font-family: -apple-system, 'Helvetica Neue', sans-serif;
-    line-height: 1.4;
-    -webkit-appearance: none;
-  }
+/* ── INPUT AREA ── */
+#input-area {
+  background: var(--bg2);
+  border-top: 1px solid var(--borde);
+  padding: 10px 12px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  gap: 8px;
+}
 
-  #texto:focus { border-color: #4fa8e8; }
-  #texto::placeholder { color: #44445a; }
+#btn-adjuntar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1px solid var(--borde);
+  color: var(--texto2);
+  font-size: 18px;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  -webkit-appearance: none;
+}
+#btn-adjuntar:active { background: var(--borde); }
 
-  #btn-enviar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #4fa8e8;
-    border: none;
-    cursor: pointer;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-    -webkit-appearance: none;
-  }
+#texto {
+  -webkit-flex: 1;
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: 9px 14px;
+  font-size: 16px;
+  color: var(--texto);
+  outline: none;
+  resize: none;
+  max-height: 120px;
+  min-height: 40px;
+  font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.4;
+  -webkit-appearance: none;
+  display: block;
+}
+#texto:focus { border-color: var(--acento); }
+#texto::-webkit-input-placeholder { color: var(--texto2); }
 
-  #btn-enviar:active { background: #3a8fd0; }
-  #btn-enviar:disabled { background: #2a2a3a; }
+#btn-enviar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--btn-bg);
+  border: none;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  -webkit-appearance: none;
+}
+#btn-enviar:active { background: var(--btn-active); }
+#btn-enviar:disabled { background: var(--borde); }
+#btn-enviar svg { width: 18px; height: 18px; fill: #fff; }
+#btn-enviar:disabled svg { fill: var(--texto2); }
 
-  #btn-enviar svg { width: 20px; height: 20px; fill: #fff; }
-  #btn-enviar:disabled svg { fill: #44445a; }
-
-  #file-input { display: none; }
-
-  .bienvenida {
-    text-align: center;
-    padding: 40px 20px;
-    color: #44445a;
-    font-size: 15px;
-    line-height: 1.8;
-  }
-
-  .bienvenida .icono { font-size: 36px; margin-bottom: 12px; }
+#file-input { display: none; }
 </style>
 </head>
-<body>
+<body class="oscuro">
 
 <div id="header">
-  <div class="dot"></div>
+  <div class="punto"></div>
   <h1>IA Chat</h1>
-  <span class="model">LLaMA · Groq</span>
+  <span class="modelo">LLaMA · Groq</span>
+  <button id="btn-tema">☀️</button>
 </div>
 
-<div id="messages">
+<div id="mensajes">
   <div class="bienvenida">
     <div class="icono">◈</div>
     Hola, soy tu asistente de IA.<br>
-    Puedes escribirme o enviarme una foto.
+    Escríbeme, mándame una foto<br>o pídeme que genere una imagen.
   </div>
 </div>
 
-<div id="preview-imagen">
-  <img id="preview-img" src="" alt="Vista previa">
-  <span id="preview-texto">Imagen lista para enviar</span>
-  <button id="btn-quitar-imagen">✕</button>
+<div id="preview-area">
+  <div id="preview-inner">
+    <img id="preview-img" src="" alt="Vista previa">
+    <span id="preview-texto">Imagen lista</span>
+    <button id="btn-quitar">✕</button>
+  </div>
 </div>
 
 <div id="input-area">
-  <button id="btn-imagen">📷</button>
+  <button id="btn-adjuntar">📎</button>
   <input type="file" id="file-input" accept="image/*">
   <textarea id="texto" placeholder="Escribe un mensaje..." rows="1"></textarea>
   <button id="btn-enviar">
@@ -306,164 +459,261 @@
 </div>
 
 <script>
-  // ⚠️ CAMBIA ESTA URL por la de tu servidor en Render
-  var SERVIDOR_URL = "https://mi-claude-server.onrender.com";
+// ⚠️ Cambia esta URL por la de tu servidor en Render
+var SERVIDOR = "https://mi-claude-server.onrender.com";
 
-  var mensajes = document.getElementById("messages");
-  var texto = document.getElementById("texto");
-  var btnEnviar = document.getElementById("btn-enviar");
-  var btnImagen = document.getElementById("btn-imagen");
-  var fileInput = document.getElementById("file-input");
-  var previewArea = document.getElementById("preview-imagen");
-  var previewImg = document.getElementById("preview-img");
-  var btnQuitarImagen = document.getElementById("btn-quitar-imagen");
+var temaOscuro = true;
+var enviando = false;
+var imgBase64 = null;
+var imgTipo = null;
 
-  var enviando = false;
-  var imagenBase64 = null;
-  var imagenTipo = null;
+var elMensajes = document.getElementById("mensajes");
+var elTexto = document.getElementById("texto");
+var elBtnEnviar = document.getElementById("btn-enviar");
+var elBtnTema = document.getElementById("btn-tema");
+var elBtnAdjuntar = document.getElementById("btn-adjuntar");
+var elFileInput = document.getElementById("file-input");
+var elPreviewArea = document.getElementById("preview-area");
+var elPreviewImg = document.getElementById("preview-img");
+var elBtnQuitar = document.getElementById("btn-quitar");
 
-  function scrollAbajo() {
-    mensajes.scrollTop = mensajes.scrollHeight;
-  }
+// ── TEMA ──
+elBtnTema.addEventListener("click", function() {
+  temaOscuro = !temaOscuro;
+  document.body.className = temaOscuro ? "oscuro" : "claro";
+  elBtnTema.textContent = temaOscuro ? "☀️" : "🌙";
+});
 
-  function quitarBienvenida() {
-    var b = mensajes.querySelector(".bienvenida");
-    if (b) b.parentNode.removeChild(b);
-  }
+// ── MARKDOWN + KATEX ──
+function renderizarMensaje(texto) {
+  // Primero escapar bloques de ecuaciones para que marked no los toque
+  var bloques = [];
+  var i = 0;
 
-  function agregarMensaje(texto_msg, tipo, imgSrc) {
-    quitarBienvenida();
-    var div = document.createElement("div");
-    div.className = "msg " + tipo;
-    if (imgSrc) {
-      var img = document.createElement("img");
-      img.src = imgSrc;
-      div.appendChild(img);
-    }
-    if (texto_msg) {
-      var p = document.createElement("span");
-      p.textContent = texto_msg;
-      div.appendChild(p);
-    }
-    mensajes.appendChild(div);
-    scrollAbajo();
-    return div;
-  }
-
-  function mostrarPensando() {
-    quitarBienvenida();
-    var div = document.createElement("div");
-    div.className = "pensando";
-    div.innerHTML = "<span>●</span><span>●</span><span>●</span>";
-    mensajes.appendChild(div);
-    scrollAbajo();
-    return div;
-  }
-
-  function quitarImagen() {
-    imagenBase64 = null;
-    imagenTipo = null;
-    previewArea.className = "";
-    previewImg.src = "";
-    fileInput.value = "";
-  }
-
-  btnQuitarImagen.addEventListener("click", quitarImagen);
-
-  btnImagen.addEventListener("click", function() {
-    fileInput.click();
+  // Ecuaciones en bloque: $$...$$
+  texto = texto.replace(/\$\$([\s\S]+?)\$\$/g, function(_, eq) {
+    var ph = "BLOQUE_ECUACION_" + i + "_FIN";
+    try { bloques.push({ ph: ph, html: katex.renderToString(eq.trim(), { displayMode: true, throwOnError: false }) }); }
+    catch(e) { bloques.push({ ph: ph, html: "<code>" + eq + "</code>" }); }
+    i++;
+    return ph;
   });
 
-  fileInput.addEventListener("change", function() {
-    var file = fileInput.files[0];
-    if (!file) return;
-    imagenTipo = file.type || "image/jpeg";
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var dataUrl = e.target.result;
-      imagenBase64 = dataUrl.split(",")[1];
-      previewImg.src = dataUrl;
-      previewArea.className = "activo";
-    };
-    reader.readAsDataURL(file);
+  // Ecuaciones en línea: $...$
+  texto = texto.replace(/\$([^\$\n]+?)\$/g, function(_, eq) {
+    var ph = "INLINE_ECUACION_" + i + "_FIN";
+    try { bloques.push({ ph: ph, html: katex.renderToString(eq.trim(), { displayMode: false, throwOnError: false }) }); }
+    catch(e) { bloques.push({ ph: ph, html: "<code>" + eq + "</code>" }); }
+    i++;
+    return ph;
   });
 
-  function enviar() {
-    if (enviando) return;
-    var msg = texto.value.trim();
-    if (!msg && !imagenBase64) return;
+  // Renderizar markdown
+  var html = marked.parse(texto);
 
-    enviando = true;
-    var msgTexto = msg;
-    var imgSrc = imagenBase64 ? previewImg.src : null;
-    var imgB64 = imagenBase64;
-    var imgTipo = imagenTipo;
+  // Restaurar ecuaciones
+  for (var j = 0; j < bloques.length; j++) {
+    html = html.replace(bloques[j].ph, bloques[j].html);
+  }
 
-    texto.value = "";
-    texto.style.height = "44px";
-    btnEnviar.disabled = true;
-    quitarImagen();
+  return html;
+}
 
-    agregarMensaje(msgTexto, "usuario", imgSrc);
-    var indicador = mostrarPensando();
+// ── SCROLL ──
+function scrollAbajo() {
+  elMensajes.scrollTop = elMensajes.scrollHeight;
+}
 
-    var payload = { mensaje: msgTexto };
-    if (imgB64) {
-      payload.imagen = imgB64;
-      payload.imagen_tipo = imgTipo;
-    }
+// ── QUITAR BIENVENIDA ──
+function quitarBienvenida() {
+  var b = elMensajes.querySelector(".bienvenida");
+  if (b) b.parentNode.removeChild(b);
+}
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", SERVIDOR_URL + "/chat", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.timeout = 30000;
+// ── AGREGAR MENSAJE ──
+function agregarMensaje(contenido, tipo, imgSrc, esHTML) {
+  quitarBienvenida();
+  var wrap = document.createElement("div");
+  wrap.className = "msg-wrap " + tipo;
+  var div = document.createElement("div");
+  div.className = "msg";
 
-    xhr.onload = function() {
-      if (indicador.parentNode) indicador.parentNode.removeChild(indicador);
-      if (xhr.status === 200) {
-        try {
-          var data = JSON.parse(xhr.responseText);
-          agregarMensaje(data.respuesta, "ia", null);
-        } catch(e) {
-          agregarMensaje("Error al procesar la respuesta.", "error", null);
-        }
-      } else {
-        agregarMensaje("Error del servidor (" + xhr.status + ").", "error", null);
+  if (imgSrc) {
+    var img = document.createElement("img");
+    img.className = "adjunta";
+    img.src = imgSrc;
+    div.appendChild(img);
+  }
+
+  if (esHTML) {
+    var span = document.createElement("span");
+    span.innerHTML = contenido;
+    div.appendChild(span);
+  } else if (contenido) {
+    var p = document.createElement("p");
+    p.textContent = contenido;
+    div.appendChild(p);
+  }
+
+  wrap.appendChild(div);
+  elMensajes.appendChild(wrap);
+  scrollAbajo();
+  return div;
+}
+
+// ── PENSANDO ──
+function mostrarPensando() {
+  quitarBienvenida();
+  var wrap = document.createElement("div");
+  wrap.className = "msg-wrap ia";
+  var div = document.createElement("div");
+  div.className = "pensando";
+  div.innerHTML = "<span>●</span><span>●</span><span>●</span>";
+  wrap.appendChild(div);
+  elMensajes.appendChild(wrap);
+  scrollAbajo();
+  return wrap;
+}
+
+// ── IMAGEN ──
+elBtnAdjuntar.addEventListener("click", function() { elFileInput.click(); });
+
+elFileInput.addEventListener("change", function() {
+  var file = elFileInput.files[0];
+  if (!file) return;
+  imgTipo = file.type || "image/jpeg";
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    imgBase64 = dataUrl.split(",")[1];
+    elPreviewImg.src = dataUrl;
+    elPreviewArea.className = "activo";
+    elPreviewArea.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+function quitarImagen() {
+  imgBase64 = null; imgTipo = null;
+  elPreviewImg.src = "";
+  elPreviewArea.className = "";
+  elPreviewArea.style.display = "none";
+  elFileInput.value = "";
+}
+elBtnQuitar.addEventListener("click", quitarImagen);
+
+// ── DETECTAR SI ES PETICIÓN DE GENERAR IMAGEN ──
+function esGenerarImagen(texto) {
+  var t = texto.toLowerCase();
+  var palabras = ["genera", "crea", "dibuja", "pinta", "imagina", "hazme una imagen", "hacer una imagen", "generar imagen", "crear imagen", "ilustra", "diseña"];
+  for (var i = 0; i < palabras.length; i++) {
+    if (t.indexOf(palabras[i]) !== -1) return true;
+  }
+  return false;
+}
+
+// ── GENERAR IMAGEN CON POLLINATIONS ──
+function generarImagen(prompt, divMensaje) {
+  var url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=512&height=512&nologo=true";
+  var img = document.createElement("img");
+  img.className = "generada";
+  img.alt = "Imagen generada";
+  img.onload = function() { scrollAbajo(); };
+  img.src = url;
+  divMensaje.appendChild(img);
+}
+
+// ── ENVIAR ──
+function enviar() {
+  if (enviando) return;
+  var msg = elTexto.value.trim();
+  if (!msg && !imgBase64) return;
+
+  enviando = true;
+  var msgTexto = msg;
+  var imgSrc = imgBase64 ? elPreviewImg.src : null;
+  var imgB64 = imgBase64;
+  var imgT = imgTipo;
+
+  elTexto.value = "";
+  elTexto.style.height = "40px";
+  elBtnEnviar.disabled = true;
+  quitarImagen();
+
+  agregarMensaje(msgTexto, "usuario", imgSrc, false);
+  var indicadorWrap = mostrarPensando();
+
+  // ¿Generar imagen?
+  if (!imgB64 && esGenerarImagen(msgTexto)) {
+    setTimeout(function() {
+      if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+      var div = agregarMensaje("Generando imagen...", "ia", null, false);
+      generarImagen(msgTexto, div);
+      enviando = false;
+      elBtnEnviar.disabled = false;
+    }, 500);
+    return;
+  }
+
+  var payload = { mensaje: msgTexto };
+  if (imgB64) { payload.imagen = imgB64; payload.imagen_tipo = imgT; }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", SERVIDOR + "/chat", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.timeout = 30000;
+
+  xhr.onload = function() {
+    if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+    if (xhr.status === 200) {
+      try {
+        var data = JSON.parse(xhr.responseText);
+        var html = renderizarMensaje(data.respuesta);
+        agregarMensaje(html, "ia", null, true);
+      } catch(e) {
+        agregarMensaje("Error procesando la respuesta.", "error", null, false);
       }
-      enviando = false;
-      btnEnviar.disabled = false;
-    };
-
-    xhr.onerror = function() {
-      if (indicador.parentNode) indicador.parentNode.removeChild(indicador);
-      agregarMensaje("No se pudo conectar. ¿Está activo el servidor?", "error", null);
-      enviando = false;
-      btnEnviar.disabled = false;
-    };
-
-    xhr.ontimeout = function() {
-      if (indicador.parentNode) indicador.parentNode.removeChild(indicador);
-      agregarMensaje("Tiempo agotado. Inténtalo de nuevo.", "error", null);
-      enviando = false;
-      btnEnviar.disabled = false;
-    };
-
-    xhr.send(JSON.stringify(payload));
-  }
-
-  btnEnviar.addEventListener("click", enviar);
-
-  texto.addEventListener("keydown", function(e) {
-    if (e.keyCode === 13 && !e.shiftKey) {
-      e.preventDefault();
-      enviar();
+    } else {
+      try {
+        var err = JSON.parse(xhr.responseText);
+        agregarMensaje("Error: " + (err.error || xhr.status), "error", null, false);
+      } catch(e) {
+        agregarMensaje("Error del servidor (" + xhr.status + ").", "error", null, false);
+      }
     }
-  });
+    enviando = false;
+    elBtnEnviar.disabled = false;
+  };
 
-  texto.addEventListener("input", function() {
-    this.style.height = "44px";
-    this.style.height = Math.min(this.scrollHeight, 120) + "px";
-  });
+  xhr.onerror = function() {
+    if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+    agregarMensaje("No se pudo conectar con el servidor.", "error", null, false);
+    enviando = false;
+    elBtnEnviar.disabled = false;
+  };
+
+  xhr.ontimeout = function() {
+    if (indicadorWrap.parentNode) indicadorWrap.parentNode.removeChild(indicadorWrap);
+    agregarMensaje("Tiempo agotado. Inténtalo de nuevo.", "error", null, false);
+    enviando = false;
+    elBtnEnviar.disabled = false;
+  };
+
+  xhr.send(JSON.stringify(payload));
+}
+
+elBtnEnviar.addEventListener("click", enviar);
+
+elTexto.addEventListener("keydown", function(e) {
+  if (e.keyCode === 13 && !e.shiftKey) { e.preventDefault(); enviar(); }
+});
+
+elTexto.addEventListener("input", function() {
+  this.style.height = "40px";
+  var h = this.scrollHeight;
+  if (h > 120) h = 120;
+  this.style.height = h + "px";
+});
 </script>
 </body>
 </html>
