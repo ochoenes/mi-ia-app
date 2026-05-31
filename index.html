@@ -605,9 +605,28 @@ elBtnQuitar.addEventListener("click", quitarImagen);
 // ── DETECTAR SI ES PETICIÓN DE GENERAR IMAGEN ──
 function esGenerarImagen(texto) {
   var t = texto.toLowerCase();
-  var palabras = ["genera", "crea", "dibuja", "pinta", "imagina", "hazme una imagen", "hacer una imagen", "generar imagen", "crear imagen", "ilustra", "diseña"];
-  for (var i = 0; i < palabras.length; i++) {
-    if (t.indexOf(palabras[i]) !== -1) return true;
+
+  // Verbos de creación visual
+  var verbos = ["genera", "generar", "crea", "crear", "dibuja", "dibujar", "pinta", "pintar",
+    "haz", "hacer", "hazme", "muéstrame", "muestrame", "diseña", "diseñar",
+    "ilustra", "ilustrar", "imagina", "imaginar", "renderiza", "renderizar",
+    "produce", "producir", "construye", "construir"];
+
+  // Objetos visuales
+  var objetos = ["imagen", "imágen", "foto", "fotografía", "fotografia", "ilustración",
+    "ilustracion", "dibujo", "pintura", "retrato", "paisaje", "diseño", "diseño",
+    "arte", "gráfico", "grafico", "poster", "cartel", "logo", "icono", "avatar"];
+
+  // Comprobar si hay un verbo + objeto visual
+  for (var i = 0; i < verbos.length; i++) {
+    if (t.indexOf(verbos[i]) !== -1) {
+      for (var j = 0; j < objetos.length; j++) {
+        if (t.indexOf(objetos[j]) !== -1) return true;
+      }
+      // Verbo solo también puede ser suficiente si va seguido de "de" o "un/una"
+      var patron = verbos[i] + " (un |una |el |la |de )";
+      if (new RegExp(patron).test(t) && i < 10) return true;
+    }
   }
   return false;
 }
