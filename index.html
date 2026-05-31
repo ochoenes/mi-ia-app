@@ -123,12 +123,14 @@ body {
   background: var(--bg3);
   border: 1px solid var(--borde);
   border-radius: 16px;
-  padding: 5px 10px;
-  font-size: 16px;
+  padding: 0 10px;
+  height: 30px;
+  font-size: 14px;
   cursor: pointer;
   color: var(--texto);
   -webkit-appearance: none;
-  line-height: 1;
+  line-height: 30px;
+  white-space: nowrap;
 }
 
 /* ── MENSAJES ── */
@@ -430,7 +432,7 @@ body {
   <div class="punto"></div>
   <h1>IA Chat</h1>
   <span class="modelo">LLaMA · Groq</span>
-  <button id="btn-tema">☀️</button>
+  <button id="btn-tema" id="btn-tema">☀</button>
 </div>
 
 <div id="mensajes">
@@ -450,7 +452,7 @@ body {
 </div>
 
 <div id="input-area">
-  <button id="btn-adjuntar">📎</button>
+  <button id="btn-adjuntar">+foto</button>
   <input type="file" id="file-input" accept="image/*">
   <textarea id="texto" placeholder="Escribe un mensaje..." rows="1"></textarea>
   <button id="btn-enviar">
@@ -481,7 +483,7 @@ var elBtnQuitar = document.getElementById("btn-quitar");
 elBtnTema.addEventListener("click", function() {
   temaOscuro = !temaOscuro;
   document.body.className = temaOscuro ? "oscuro" : "claro";
-  elBtnTema.textContent = temaOscuro ? "☀️" : "🌙";
+  elBtnTema.textContent = temaOscuro ? "☀" : "☾";
 });
 
 // ── MARKDOWN + KATEX ──
