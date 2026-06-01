@@ -7,21 +7,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ochoenes">
 <title>ochoenes</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <style>
-/* ── RESET & BASE ── */
 * {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   margin: 0; padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
-
-html, body {
-  height: 100%;
-  overflow: hidden;
-  -webkit-text-size-adjust: 100%;
-}
-
+html, body { height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; }
 body {
   font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background: #ffffff;
@@ -34,26 +30,26 @@ body {
   flex-direction: column;
 }
 
-/* ── NAVIGATION BAR (iOS 10 style) ── */
+/* ── NAVBAR ── */
 #navbar {
-  background: rgba(247, 247, 247, 0.92);
+  background: rgba(247,247,247,0.95);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-bottom: 0.5px solid #c8c7cc;
   height: 64px;
+  padding-top: 20px;
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
   -webkit-box-align: center;
   -webkit-align-items: center;
   align-items: center;
-  padding: 0 16px;
+  padding-left: 16px;
+  padding-right: 16px;
   -webkit-flex-shrink: 0;
   flex-shrink: 0;
   position: relative;
-  padding-top: 20px;
 }
-
 #navbar-title {
   position: absolute;
   left: 50%;
@@ -66,7 +62,6 @@ body {
   letter-spacing: -0.4px;
   white-space: nowrap;
 }
-
 #btn-nuevo {
   position: absolute;
   right: 16px;
@@ -81,10 +76,9 @@ body {
   padding: 4px 0;
   letter-spacing: -0.2px;
 }
-
 #btn-nuevo:active { opacity: 0.5; }
 
-/* ── MODEL SELECTOR BAR ── */
+/* ── MODEL BAR ── */
 #model-bar {
   background: #f7f7f7;
   border-bottom: 0.5px solid #c8c7cc;
@@ -99,21 +93,18 @@ body {
   align-items: center;
   gap: 8px;
 }
-
 #model-bar label {
   font-size: 13px;
   color: #8e8e93;
-  letter-spacing: -0.1px;
   white-space: nowrap;
 }
-
 #model-select {
   -webkit-flex: 1;
   flex: 1;
   background: #ffffff;
   border: 0.5px solid #c8c7cc;
   border-radius: 8px;
-  padding: 6px 10px;
+  padding: 6px 28px 6px 10px;
   font-size: 14px;
   font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #000000;
@@ -123,10 +114,20 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  padding-right: 28px;
 }
+#model-omni-badge {
+  display: none;
+  font-size: 11px;
+  color: #ffffff;
+  background: #34aadc;
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  letter-spacing: -0.1px;
+}
+#model-omni-badge.visible { display: block; }
 
-/* ── MESSAGES AREA ── */
+/* ── MENSAJES ── */
 #mensajes {
   -webkit-flex: 1;
   flex: 1;
@@ -140,9 +141,7 @@ body {
 .bienvenida {
   text-align: center;
   padding: 60px 32px 32px;
-  color: #8e8e93;
 }
-
 .bienvenida-titulo {
   font-size: 28px;
   font-weight: 300;
@@ -150,16 +149,14 @@ body {
   letter-spacing: -0.8px;
   margin-bottom: 8px;
 }
-
 .bienvenida-sub {
   font-size: 15px;
   color: #8e8e93;
   line-height: 1.5;
   letter-spacing: -0.2px;
+  margin-bottom: 32px;
 }
-
 .bienvenida-sugerencias {
-  margin-top: 32px;
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
@@ -167,41 +164,22 @@ body {
   flex-direction: column;
   gap: 10px;
 }
-
 .sugerencia {
-  background: #f7f7f7;
-  border: 0.5px solid #c8c7cc;
+  background: #f2f2f7;
+  border: none;
   border-radius: 12px;
   padding: 12px 16px;
   text-align: left;
   cursor: pointer;
   -webkit-appearance: none;
   font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: #000000;
-  letter-spacing: -0.2px;
-  line-height: 1.4;
   width: 100%;
-  border: none;
-  background: #f2f2f7;
-  border-radius: 12px;
 }
-
 .sugerencia:active { background: #e5e5ea; }
+.sugerencia-titulo { font-size: 14px; font-weight: 500; color: #000000; display: block; margin-bottom: 2px; letter-spacing: -0.2px; }
+.sugerencia-desc { font-size: 13px; color: #8e8e93; display: block; letter-spacing: -0.1px; }
 
-.sugerencia-titulo {
-  font-weight: 500;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.sugerencia-desc {
-  color: #8e8e93;
-  font-size: 13px;
-  display: block;
-}
-
-/* ── MENSAJES ── */
+/* ── BURBUJAS ── */
 .msg-grupo {
   padding: 2px 16px;
   margin-bottom: 2px;
@@ -211,17 +189,15 @@ body {
   -webkit-flex-direction: column;
   flex-direction: column;
 }
-
-.msg-grupo.usuario {
-  -webkit-align-items: flex-end;
-  align-items: flex-end;
+.msg-grupo.usuario { -webkit-align-items: flex-end; align-items: flex-end; }
+.msg-grupo.ia { -webkit-align-items: flex-start; align-items: flex-start; }
+.msg-modelo {
+  font-size: 11px;
+  color: #8e8e93;
+  margin-bottom: 3px;
+  margin-left: 2px;
+  letter-spacing: -0.1px;
 }
-
-.msg-grupo.ia {
-  -webkit-align-items: flex-start;
-  align-items: flex-start;
-}
-
 .msg-burbuja {
   max-width: 80%;
   padding: 10px 14px;
@@ -232,27 +208,26 @@ body {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
-
 .msg-grupo.usuario .msg-burbuja {
   background: #007AFF;
   color: #ffffff;
   border-bottom-right-radius: 4px;
 }
-
 .msg-grupo.ia .msg-burbuja {
   background: #e9e9eb;
   color: #000000;
   border-bottom-left-radius: 4px;
 }
-
 .msg-grupo.error .msg-burbuja {
   background: #ff3b30;
   color: #ffffff;
   border-bottom-left-radius: 4px;
   font-size: 14px;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
 }
 
-/* Imagen adjunta en mensaje usuario */
+/* Imagen adjunta en burbuja usuario */
 .msg-img-adjunta {
   max-width: 100%;
   border-radius: 14px;
@@ -260,17 +235,55 @@ body {
   display: block;
 }
 
-/* Imagen generada por IA */
+/* Badge de archivo en burbuja usuario */
+.msg-archivo-badge {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #ffffff;
+}
+.msg-archivo-icono {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 6px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.msg-archivo-icono svg { width: 16px; height: 16px; }
+.msg-archivo-nombre {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+/* Imagen generada */
 .msg-img-generada {
   max-width: 100%;
   border-radius: 14px;
-  margin-top: 8px;
+  margin-top: 4px;
   display: block;
   border: 0.5px solid #c8c7cc;
 }
-
 .btn-descargar {
-  display: block;
+  display: inline-block;
   margin-top: 8px;
   background: none;
   border: 0.5px solid #007AFF;
@@ -281,44 +294,24 @@ body {
   padding: 6px 14px;
   cursor: pointer;
   -webkit-appearance: none;
+  text-decoration: none;
   letter-spacing: -0.1px;
 }
-
 .btn-descargar:active { opacity: 0.6; }
 
-/* Separador de fecha */
-.separador-fecha {
-  text-align: center;
-  font-size: 12px;
-  color: #8e8e93;
-  margin: 12px 0 8px;
-  letter-spacing: -0.1px;
-}
-
-/* Nombre del modelo en respuesta IA */
-.msg-modelo {
-  font-size: 11px;
-  color: #8e8e93;
-  margin-bottom: 3px;
-  margin-left: 2px;
-  letter-spacing: -0.1px;
-}
-
 /* Indicador escribiendo */
-.escribiendo {
+.msg-grupo.ia .escribiendo {
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
   -webkit-align-items: center;
   align-items: center;
   gap: 4px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   background: #e9e9eb;
   border-radius: 18px;
   border-bottom-left-radius: 4px;
-  width: 56px;
 }
-
 .escribiendo span {
   width: 7px; height: 7px;
   border-radius: 50%;
@@ -327,9 +320,8 @@ body {
   -webkit-animation: typing 1.2s infinite;
   animation: typing 1.2s infinite;
 }
-.escribiendo span:nth-child(2) { -webkit-animation-delay: 0.2s; animation-delay: 0.2s; }
-.escribiendo span:nth-child(3) { -webkit-animation-delay: 0.4s; animation-delay: 0.4s; }
-
+.escribiendo span:nth-child(2) { -webkit-animation-delay:0.2s; animation-delay:0.2s; }
+.escribiendo span:nth-child(3) { -webkit-animation-delay:0.4s; animation-delay:0.4s; }
 @-webkit-keyframes typing { 0%,60%,100%{opacity:0.3;-webkit-transform:scale(1);transform:scale(1)} 30%{opacity:1;-webkit-transform:scale(1.2);transform:scale(1.2)} }
 @keyframes typing { 0%,60%,100%{opacity:0.3;transform:scale(1)} 30%{opacity:1;transform:scale(1.2)} }
 
@@ -353,7 +345,7 @@ body {
 .msg-grupo.ia .msg-burbuja th { font-weight: 600; background: rgba(0,0,0,0.04); }
 .msg-grupo.ia .msg-burbuja hr { border: none; border-top: 0.5px solid #c8c7cc; margin: 8px 0; }
 
-/* ── PREVIEW IMAGEN ── */
+/* ── PREVIEW ARCHIVO ── */
 #preview-area {
   display: none;
   background: #f7f7f7;
@@ -362,7 +354,6 @@ body {
   -webkit-flex-shrink: 0;
   flex-shrink: 0;
 }
-
 #preview-inner {
   display: -webkit-box;
   display: -webkit-flex;
@@ -371,46 +362,69 @@ body {
   align-items: center;
   gap: 12px;
 }
-
-#preview-thumb {
+#preview-visual {
   width: 48px; height: 48px;
-  object-fit: cover;
   border-radius: 8px;
   border: 0.5px solid #c8c7cc;
   -webkit-flex-shrink: 0;
   flex-shrink: 0;
+  overflow: hidden;
+  background: #e9e9eb;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
 }
-
-#preview-nombre {
+#preview-visual img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+#preview-visual svg { width: 22px; height: 22px; }
+#preview-info {
   -webkit-flex: 1;
   flex: 1;
+  overflow: hidden;
+}
+#preview-nombre {
   font-size: 13px;
-  color: #8e8e93;
+  font-weight: 500;
+  color: #000000;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.1px;
 }
-
-#btn-quitar-preview {
-  background: #c8c7cc;
-  border: none;
-  border-radius: 50%;
-  width: 20px; height: 20px;
-  color: #ffffff;
+#preview-tipo {
   font-size: 12px;
-  font-weight: 600;
+  color: #8e8e93;
+  margin-top: 2px;
+  letter-spacing: -0.1px;
+}
+#btn-quitar-preview {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #c7c7cc;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
   -webkit-appearance: none;
-  line-height: 20px;
+  line-height: 22px;
   text-align: center;
   padding: 0;
   -webkit-flex-shrink: 0;
   flex-shrink: 0;
 }
+#btn-quitar-preview:active { background: #8e8e93; }
 
-/* ── INPUT TOOLBAR ── */
+/* ── INPUT ── */
 #input-toolbar {
-  background: rgba(247, 247, 247, 0.92);
+  background: rgba(247,247,247,0.95);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-top: 0.5px solid #c8c7cc;
@@ -424,7 +438,6 @@ body {
   align-items: flex-end;
   gap: 8px;
 }
-
 #btn-adjuntar {
   width: 34px; height: 34px;
   border-radius: 50%;
@@ -441,19 +454,9 @@ body {
   align-items: center;
   -webkit-justify-content: center;
   justify-content: center;
-  margin-bottom: 0;
 }
-
 #btn-adjuntar:active { background: #d1d1d6; }
-
-#btn-adjuntar svg {
-  width: 16px; height: 16px;
-  fill: none;
-  stroke: #3c3c43;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
+#btn-adjuntar svg { width: 16px; height: 16px; fill: none; stroke: #3c3c43; stroke-width: 2; stroke-linecap: round; }
 #input-wrap {
   -webkit-flex: 1;
   flex: 1;
@@ -465,10 +468,9 @@ body {
   display: flex;
   -webkit-align-items: flex-end;
   align-items: flex-end;
-  padding: 0 12px;
+  padding: 0 8px 0 14px;
   min-height: 36px;
 }
-
 #texto {
   -webkit-flex: 1;
   flex: 1;
@@ -486,9 +488,7 @@ body {
   -webkit-appearance: none;
   letter-spacing: -0.2px;
 }
-
 #texto::-webkit-input-placeholder { color: #c7c7cc; }
-
 #btn-enviar {
   width: 28px; height: 28px;
   border-radius: 50%;
@@ -499,6 +499,7 @@ body {
   -webkit-flex-shrink: 0;
   flex-shrink: 0;
   margin-bottom: 4px;
+  margin-left: 4px;
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
@@ -506,44 +507,31 @@ body {
   align-items: center;
   -webkit-justify-content: center;
   justify-content: center;
-  margin-left: 6px;
-  -webkit-transition: background 0.15s;
-  transition: background 0.15s;
 }
-
 #btn-enviar:active { background: #0051a8; }
 #btn-enviar:disabled { background: #c7c7cc; }
-
-#btn-enviar svg {
-  width: 14px; height: 14px;
-  fill: #ffffff;
-}
-
+#btn-enviar svg { width: 14px; height: 14px; }
 #file-input { display: none; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 </head>
 <body>
 
-<!-- NAVBAR -->
 <div id="navbar">
   <span id="navbar-title">ochoenes</span>
   <button id="btn-nuevo">Nueva</button>
 </div>
 
-<!-- MODEL BAR -->
 <div id="model-bar">
   <label for="model-select">Modelo</label>
   <select id="model-select">
-    <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</option>
-    <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
-    <option value="microsoft/phi-4-multimodal-instruct:free">Phi-4 Multimodal</option>
+    <option value="openai/gpt-oss-120b:free">GPT OSS 120B</option>
+    <option value="qwen/qwen3-next-80b-a3b-instruct:free">Qwen3 80B</option>
+    <option value="nousresearch/hermes-3-llama-3.1-405b:free">Hermes 3 405B</option>
+    <option value="cognitivecomputations/dolphin-mistral-24b-venice-edition:free">Venice Uncensored</option>
   </select>
+  <span id="model-omni-badge">Omni</span>
 </div>
 
-<!-- MENSAJES -->
 <div id="mensajes">
   <div class="bienvenida" id="bienvenida">
     <div class="bienvenida-titulo">ochoenes</div>
@@ -551,7 +539,7 @@ body {
     <div class="bienvenida-sugerencias">
       <button class="sugerencia" onclick="usarSugerencia(this)">
         <span class="sugerencia-titulo">Explica algo complejo</span>
-        <span class="sugerencia-desc">Como si tuviera 10 años</span>
+        <span class="sugerencia-desc">De forma clara y sencilla</span>
       </button>
       <button class="sugerencia" onclick="usarSugerencia(this)">
         <span class="sugerencia-titulo">Genera una imagen</span>
@@ -559,36 +547,42 @@ body {
       </button>
       <button class="sugerencia" onclick="usarSugerencia(this)">
         <span class="sugerencia-titulo">Ayuda con un texto</span>
-        <span class="sugerencia-desc">Redacta, corrige o mejora</span>
+        <span class="sugerencia-desc">Redacta, corrige o traduce</span>
       </button>
     </div>
   </div>
 </div>
 
-<!-- PREVIEW IMAGEN -->
 <div id="preview-area">
   <div id="preview-inner">
-    <img id="preview-thumb" src="" alt="">
-    <span id="preview-nombre">Imagen seleccionada</span>
+    <div id="preview-visual">
+      <svg id="preview-svg" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="1.5" stroke-linecap="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+    </div>
+    <div id="preview-info">
+      <div id="preview-nombre">Archivo</div>
+      <div id="preview-tipo">Listo para enviar</div>
+    </div>
     <button id="btn-quitar-preview">X</button>
   </div>
 </div>
 
-<!-- INPUT -->
 <div id="input-toolbar">
   <button id="btn-adjuntar">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 24 24">
       <line x1="12" y1="5" x2="12" y2="19"/>
       <line x1="5" y1="12" x2="19" y2="12"/>
     </svg>
   </button>
-  <input type="file" id="file-input" accept="image/*">
+  <input type="file" id="file-input" accept="image/*,audio/*,.pdf,.txt,.doc,.docx,.md,.csv">
   <div id="input-wrap">
     <textarea id="texto" placeholder="Mensaje" rows="1"></textarea>
     <button id="btn-enviar" disabled>
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 19V5M5 12l7-7 7 7"/>
-        <path d="M12 19V5M5 12l7-7 7 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="19" x2="12" y2="5"/>
+        <polyline points="5 12 12 5 19 12"/>
       </svg>
     </button>
   </div>
@@ -599,8 +593,9 @@ var SERVIDOR = "https://mi-claude-server.onrender.com";
 
 var enviando = false;
 var historial = [];
-var imgBase64 = null;
-var imgTipo = null;
+var archivoB64 = null;
+var archivoTipo = null;
+var archivoNombre = null;
 
 var elMensajes = document.getElementById("mensajes");
 var elTexto = document.getElementById("texto");
@@ -608,25 +603,27 @@ var elBtnEnviar = document.getElementById("btn-enviar");
 var elBtnAdjuntar = document.getElementById("btn-adjuntar");
 var elFileInput = document.getElementById("file-input");
 var elPreviewArea = document.getElementById("preview-area");
-var elPreviewThumb = document.getElementById("preview-thumb");
+var elPreviewVisual = document.getElementById("preview-visual");
+var elPreviewSvg = document.getElementById("preview-svg");
+var elPreviewNombre = document.getElementById("preview-nombre");
+var elPreviewTipo = document.getElementById("preview-tipo");
 var elBtnQuitarPreview = document.getElementById("btn-quitar-preview");
 var elModelSelect = document.getElementById("model-select");
 var elBtnNuevo = document.getElementById("btn-nuevo");
+var elOmniBadge = document.getElementById("model-omni-badge");
 
-// ── NUEVA CONVERSACION ──
+var BIENVENIDA_HTML = document.getElementById("bienvenida").outerHTML;
+
+// ── NUEVO ──
 elBtnNuevo.addEventListener("click", function() {
   historial = [];
-  imgBase64 = null; imgTipo = null;
-  elPreviewArea.style.display = "none";
-  elPreviewThumb.src = "";
-  elFileInput.value = "";
-  elMensajes.innerHTML = '<div class="bienvenida" id="bienvenida"><div class="bienvenida-titulo">ochoenes</div><div class="bienvenida-sub">Tu asistente de inteligencia artificial</div><div class="bienvenida-sugerencias"><button class="sugerencia" onclick="usarSugerencia(this)"><span class="sugerencia-titulo">Explica algo complejo</span><span class="sugerencia-desc">Como si tuviera 10 años</span></button><button class="sugerencia" onclick="usarSugerencia(this)"><span class="sugerencia-titulo">Genera una imagen</span><span class="sugerencia-desc">Describe lo que quieres ver</span></button><button class="sugerencia" onclick="usarSugerencia(this)"><span class="sugerencia-titulo">Ayuda con un texto</span><span class="sugerencia-desc">Redacta, corrige o mejora</span></button></div></div>';
+  quitarArchivo();
+  elMensajes.innerHTML = BIENVENIDA_HTML;
 });
 
 // ── SUGERENCIAS ──
 function usarSugerencia(btn) {
-  var titulo = btn.querySelector(".sugerencia-titulo").textContent;
-  elTexto.value = titulo;
+  elTexto.value = btn.querySelector(".sugerencia-titulo").textContent;
   actualizarBoton();
   elTexto.focus();
 }
@@ -636,7 +633,7 @@ function scrollAbajo() {
   setTimeout(function() { elMensajes.scrollTop = elMensajes.scrollHeight; }, 50);
 }
 
-// ── QUITAR BIENVENIDA ──
+// ── BIENVENIDA ──
 function quitarBienvenida() {
   var b = document.getElementById("bienvenida");
   if (b) b.parentNode.removeChild(b);
@@ -644,18 +641,17 @@ function quitarBienvenida() {
 
 // ── RENDERIZAR MARKDOWN + KATEX ──
 function renderizar(texto) {
-  var bloques = [];
-  var n = 0;
+  var bloques = [], n = 0;
   texto = texto.replace(/\$\$([\s\S]+?)\$\$/g, function(_, eq) {
     var ph = "BLKEQ" + n + "END";
-    try { bloques.push({ph: ph, html: katex.renderToString(eq.trim(), {displayMode: true, throwOnError: false})}); }
-    catch(e) { bloques.push({ph: ph, html: "<code>" + eq + "</code>"}); }
+    try { bloques.push({ph:ph, html:katex.renderToString(eq.trim(), {displayMode:true, throwOnError:false})}); }
+    catch(e) { bloques.push({ph:ph, html:"<code>"+eq+"</code>"}); }
     n++; return ph;
   });
   texto = texto.replace(/\$([^\$\n]+?)\$/g, function(_, eq) {
     var ph = "INLEQ" + n + "END";
-    try { bloques.push({ph: ph, html: katex.renderToString(eq.trim(), {displayMode: false, throwOnError: false})}); }
-    catch(e) { bloques.push({ph: ph, html: "<code>" + eq + "</code>"}); }
+    try { bloques.push({ph:ph, html:katex.renderToString(eq.trim(), {displayMode:false, throwOnError:false})}); }
+    catch(e) { bloques.push({ph:ph, html:"<code>"+eq+"</code>"}); }
     n++; return ph;
   });
   var html = marked.parse(texto);
@@ -663,48 +659,196 @@ function renderizar(texto) {
   return html;
 }
 
-// ── AGREGAR MENSAJE USUARIO ──
-function agregarUsuario(texto, imgSrc) {
+// ── NOMBRE MODELO ──
+function nombreModelo(val) {
+  if (!val) val = elModelSelect.value;
+  if (val.indexOf("gpt-oss-120b") !== -1) return "GPT OSS 120B";
+  if (val.indexOf("qwen3-next") !== -1) return "Qwen3 80B";
+  if (val.indexOf("hermes") !== -1) return "Hermes 3 405B";
+  if (val.indexOf("venice") !== -1 || val.indexOf("dolphin") !== -1) return "Venice Uncensored";
+  if (val.indexOf("nemotron") !== -1) return "Nemotron Omni";
+  return "IA";
+}
+
+// ── ICONO ARCHIVO ──
+function iconoArchivo(tipo) {
+  if (tipo.indexOf("pdf") !== -1) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>';
+  }
+  if (tipo.indexOf("audio") !== -1) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  }
+  if (tipo.indexOf("word") !== -1 || tipo.indexOf("doc") !== -1) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="#2980b9" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+}
+
+function etiquetaTipo(tipo, nombre) {
+  if (tipo.startsWith("image/")) return "Imagen";
+  if (tipo.startsWith("audio/")) return "Audio";
+  if (tipo.indexOf("pdf") !== -1) return "PDF";
+  if (tipo.indexOf("word") !== -1 || tipo.indexOf("doc") !== -1) return "Word";
+  if (tipo === "text/plain") return "Texto";
+  if (tipo === "text/csv") return "CSV";
+  var ext = nombre.split(".").pop().toUpperCase();
+  return ext || "Archivo";
+}
+
+// ── ADJUNTAR ARCHIVO ──
+elBtnAdjuntar.addEventListener("click", function() { elFileInput.click(); });
+
+elFileInput.addEventListener("change", function() {
+  var file = elFileInput.files[0];
+  if (!file) return;
+  archivoTipo = file.type || "application/octet-stream";
+  archivoNombre = file.name;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    archivoB64 = dataUrl.split(",")[1];
+
+    // Mostrar preview
+    elPreviewVisual.innerHTML = "";
+    if (archivoTipo.startsWith("image/")) {
+      var img = document.createElement("img");
+      img.src = dataUrl;
+      elPreviewVisual.appendChild(img);
+    } else {
+      elPreviewVisual.innerHTML = iconoArchivo(archivoTipo);
+    }
+
+    elPreviewNombre.textContent = archivoNombre;
+    elPreviewTipo.textContent = etiquetaTipo(archivoTipo, archivoNombre);
+    elPreviewArea.style.display = "block";
+    elOmniBadge.className = "visible";
+    actualizarBoton();
+  };
+  reader.readAsDataURL(file);
+});
+
+function quitarArchivo() {
+  archivoB64 = null; archivoTipo = null; archivoNombre = null;
+  elPreviewArea.style.display = "none";
+  elPreviewVisual.innerHTML = "";
+  elFileInput.value = "";
+  elOmniBadge.className = "";
+}
+elBtnQuitarPreview.addEventListener("click", quitarArchivo);
+
+// ── BOTON ENVIAR ──
+function actualizarBoton() {
+  var hayTexto = elTexto.value.trim().length > 0;
+  var hayArchivo = archivoB64 !== null;
+  elBtnEnviar.disabled = (!hayTexto && !hayArchivo) || enviando;
+}
+
+elTexto.addEventListener("input", function() {
+  this.style.height = "36px";
+  this.style.height = Math.min(this.scrollHeight, 120) + "px";
+  actualizarBoton();
+});
+
+// ── DETECCIÓN GENERAR IMAGEN ──
+function esGenerarImagen(t) {
+  t = t.toLowerCase();
+  var verbos = ["genera", "generar", "crea", "crear", "dibuja", "dibujar", "pinta", "pintar", "haz una imagen", "hazme una imagen", "ilustra", "diseña una imagen"];
+  var objetos = ["imagen", "foto", "fotografía", "fotografia", "ilustración", "ilustracion", "dibujo", "pintura", "retrato", "paisaje"];
+  for (var i = 0; i < verbos.length; i++) {
+    if (t.indexOf(verbos[i]) !== -1) {
+      for (var j = 0; j < objetos.length; j++) {
+        if (t.indexOf(objetos[j]) !== -1) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function generarImagen(prompt) {
+  var url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=768&height=768&nologo=true";
+  var grupo = document.createElement("div");
+  grupo.className = "msg-grupo ia";
+  var etiq = document.createElement("div");
+  etiq.className = "msg-modelo";
+  etiq.textContent = "Imagen generada";
+  var burbuja = document.createElement("div");
+  burbuja.className = "msg-burbuja";
+  burbuja.style.background = "transparent";
+  burbuja.style.padding = "0";
+  var img = document.createElement("img");
+  img.className = "msg-img-generada";
+  img.alt = "Imagen generada";
+  var a = document.createElement("a");
+  a.className = "btn-descargar";
+  a.textContent = "Descargar imagen";
+  a.download = "ochoenes-imagen.jpg";
+  img.onload = function() { a.href = url; scrollAbajo(); };
+  img.src = url;
+  burbuja.appendChild(img);
+  burbuja.appendChild(a);
+  grupo.appendChild(etiq);
+  grupo.appendChild(burbuja);
+  elMensajes.appendChild(grupo);
+  scrollAbajo();
+}
+
+// ── AGREGAR MENSAJES ──
+function agregarUsuario(texto, archivo) {
   quitarBienvenida();
   var grupo = document.createElement("div");
   grupo.className = "msg-grupo usuario";
   var burbuja = document.createElement("div");
   burbuja.className = "msg-burbuja";
-  if (imgSrc) {
-    var img = document.createElement("img");
-    img.className = "msg-img-adjunta";
-    img.src = imgSrc;
-    burbuja.appendChild(img);
+
+  if (archivo) {
+    if (archivo.tipo.startsWith("image/")) {
+      var img = document.createElement("img");
+      img.className = "msg-img-adjunta";
+      img.src = archivo.src;
+      burbuja.appendChild(img);
+    } else {
+      var badge = document.createElement("div");
+      badge.className = "msg-archivo-badge";
+      var icono = document.createElement("div");
+      icono.className = "msg-archivo-icono";
+      icono.innerHTML = iconoArchivo(archivo.tipo);
+      var nombre = document.createElement("span");
+      nombre.className = "msg-archivo-nombre";
+      nombre.textContent = archivo.nombre;
+      badge.appendChild(icono);
+      badge.appendChild(nombre);
+      burbuja.appendChild(badge);
+    }
   }
+
   if (texto) {
     var p = document.createElement("p");
     p.textContent = texto;
     burbuja.appendChild(p);
   }
+
   grupo.appendChild(burbuja);
   elMensajes.appendChild(grupo);
   scrollAbajo();
 }
 
-// ── AGREGAR MENSAJE IA ──
-function agregarIA(html, modeloNombre) {
+function agregarIA(html, modelo) {
   quitarBienvenida();
   var grupo = document.createElement("div");
   grupo.className = "msg-grupo ia";
-  var etiqueta = document.createElement("div");
-  etiqueta.className = "msg-modelo";
-  etiqueta.textContent = modeloNombre;
+  var etiq = document.createElement("div");
+  etiq.className = "msg-modelo";
+  etiq.textContent = modelo;
   var burbuja = document.createElement("div");
   burbuja.className = "msg-burbuja";
   burbuja.innerHTML = html;
-  grupo.appendChild(etiqueta);
+  grupo.appendChild(etiq);
   grupo.appendChild(burbuja);
   elMensajes.appendChild(grupo);
   scrollAbajo();
-  return burbuja;
 }
 
-// ── AGREGAR ERROR ──
 function agregarError(msg) {
   quitarBienvenida();
   var grupo = document.createElement("div");
@@ -717,7 +861,6 @@ function agregarError(msg) {
   scrollAbajo();
 }
 
-// ── INDICADOR ESCRIBIENDO ──
 function mostrarEscribiendo() {
   quitarBienvenida();
   var grupo = document.createElement("div");
@@ -731,129 +874,38 @@ function mostrarEscribiendo() {
   return grupo;
 }
 
-// ── GENERAR IMAGEN ──
-function esGenerarImagen(t) {
-  t = t.toLowerCase();
-  var verbos = ["genera", "generar", "crea", "crear", "dibuja", "dibujar", "pinta", "pintar", "haz una imagen", "hazme una imagen", "ilustra", "diseña una imagen", "diseña un"];
-  var objetos = ["imagen", "foto", "fotografía", "fotografia", "ilustración", "ilustracion", "dibujo", "pintura", "retrato", "paisaje"];
-  for (var i = 0; i < verbos.length; i++) {
-    if (t.indexOf(verbos[i]) !== -1) {
-      for (var j = 0; j < objetos.length; j++) {
-        if (t.indexOf(objetos[j]) !== -1) return true;
-      }
-    }
-  }
-  return false;
-}
-
-function generarImagen(prompt, modeloNombre) {
-  var url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=768&height=768&nologo=true";
-  var grupo = document.createElement("div");
-  grupo.className = "msg-grupo ia";
-  var etiqueta = document.createElement("div");
-  etiqueta.className = "msg-modelo";
-  etiqueta.textContent = "Imagen generada";
-  var burbuja = document.createElement("div");
-  burbuja.className = "msg-burbuja";
-  burbuja.style.background = "transparent";
-  burbuja.style.padding = "0";
-  var img = document.createElement("img");
-  img.className = "msg-img-generada";
-  img.alt = "Imagen generada";
-  var btnDesc = document.createElement("a");
-  btnDesc.className = "btn-descargar";
-  btnDesc.textContent = "Descargar imagen";
-  btnDesc.download = "ochoenes-imagen.jpg";
-  img.onload = function() {
-    btnDesc.href = url;
-    scrollAbajo();
-  };
-  img.src = url;
-  burbuja.appendChild(img);
-  burbuja.appendChild(btnDesc);
-  grupo.appendChild(etiqueta);
-  grupo.appendChild(burbuja);
-  elMensajes.appendChild(grupo);
-  scrollAbajo();
-}
-
-// ── ADJUNTAR IMAGEN ──
-elBtnAdjuntar.addEventListener("click", function() { elFileInput.click(); });
-
-elFileInput.addEventListener("change", function() {
-  var file = elFileInput.files[0];
-  if (!file) return;
-  imgTipo = file.type || "image/jpeg";
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var dataUrl = e.target.result;
-    imgBase64 = dataUrl.split(",")[1];
-    elPreviewThumb.src = dataUrl;
-    elPreviewArea.style.display = "block";
-    elPreviewArea.style.display = "-webkit-box";
-    elPreviewArea.style.display = "flex";
-    actualizarBoton();
-  };
-  reader.readAsDataURL(file);
-});
-
-function quitarImagen() {
-  imgBase64 = null; imgTipo = null;
-  elPreviewThumb.src = "";
-  elPreviewArea.style.display = "none";
-  elFileInput.value = "";
-}
-elBtnQuitarPreview.addEventListener("click", quitarImagen);
-
-// ── BOTON ENVIAR ──
-function actualizarBoton() {
-  var hayTexto = elTexto.value.trim().length > 0;
-  var hayImagen = imgBase64 !== null;
-  elBtnEnviar.disabled = (!hayTexto && !hayImagen) || enviando;
-}
-
-elTexto.addEventListener("input", function() {
-  this.style.height = "36px";
-  this.style.height = Math.min(this.scrollHeight, 120) + "px";
-  actualizarBoton();
-});
-
-// ── NOMBRE DEL MODELO ──
-function nombreModelo() {
-  var val = elModelSelect.value;
-  if (val.indexOf("gemini") !== -1) return "Gemini 2.0 Flash";
-  if (val.indexOf("llama") !== -1) return "Llama 3.3 70B";
-  if (val.indexOf("phi") !== -1) return "Phi-4 Multimodal";
-  return "IA";
-}
-
 // ── ENVIAR ──
 function enviar() {
   if (enviando) return;
   var msg = elTexto.value.trim();
-  if (!msg && !imgBase64) return;
+  if (!msg && !archivoB64) return;
 
   enviando = true;
   elBtnEnviar.disabled = true;
 
   var msgTexto = msg;
-  var imgSrc = imgBase64 ? elPreviewThumb.src : null;
-  var imgB64 = imgBase64;
-  var imgT = imgTipo;
+  var archivoInfo = archivoB64 ? {
+    b64: archivoB64,
+    tipo: archivoTipo,
+    nombre: archivoNombre,
+    src: archivoTipo.startsWith("image/") ? ("data:" + archivoTipo + ";base64," + archivoB64) : null
+  } : null;
+
   var modeloActual = elModelSelect.value;
-  var modeloNombre = nombreModelo();
+  var modeloNombre = nombreModelo(modeloActual);
 
   elTexto.value = "";
   elTexto.style.height = "36px";
-  quitarImagen();
+  quitarArchivo();
+  actualizarBoton();
 
-  agregarUsuario(msgTexto, imgSrc);
+  agregarUsuario(msgTexto, archivoInfo);
 
-  // Generar imagen localmente
-  if (!imgB64 && esGenerarImagen(msgTexto)) {
-    generarImagen(msgTexto, modeloNombre);
-    historial.push({role: "user", content: msgTexto});
-    historial.push({role: "assistant", content: "[Imagen generada]"});
+  // Generar imagen
+  if (!archivoInfo && esGenerarImagen(msgTexto)) {
+    generarImagen(msgTexto);
+    historial.push({role:"user", content:msgTexto});
+    historial.push({role:"assistant", content:"[Imagen generada]"});
     enviando = false;
     actualizarBoton();
     return;
@@ -866,7 +918,11 @@ function enviar() {
     historial: historial,
     modelo: modeloActual
   };
-  if (imgB64) { payload.imagen = imgB64; payload.imagen_tipo = imgT; }
+  if (archivoInfo) {
+    payload.archivo = archivoInfo.b64;
+    payload.archivo_tipo = archivoInfo.tipo;
+    payload.archivo_nombre = archivoInfo.nombre;
+  }
 
   var xhr = new XMLHttpRequest();
   xhr.open("POST", SERVIDOR + "/chat", true);
@@ -878,11 +934,10 @@ function enviar() {
     if (xhr.status === 200) {
       try {
         var data = JSON.parse(xhr.responseText);
-        var html = renderizar(data.respuesta);
-        agregarIA(html, modeloNombre);
-        // Actualizar historial
-        historial.push({role: "user", content: msgTexto});
-        historial.push({role: "assistant", content: data.respuesta});
+        var modeloUsado = archivoInfo ? "Nemotron Omni" : modeloNombre;
+        agregarIA(renderizar(data.respuesta), modeloUsado);
+        historial.push({role:"user", content: msgTexto || ("[Archivo: " + (archivoInfo ? archivoInfo.nombre : "") + "]")});
+        historial.push({role:"assistant", content: data.respuesta});
       } catch(e) {
         agregarError("Error procesando la respuesta.");
       }
@@ -914,7 +969,6 @@ function enviar() {
 }
 
 elBtnEnviar.addEventListener("click", enviar);
-
 elTexto.addEventListener("keydown", function(e) {
   if (e.keyCode === 13 && !e.shiftKey) { e.preventDefault(); enviar(); }
 });
